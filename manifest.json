@@ -1,10 +1,22 @@
 {
-  "name": "Renato Tradardi · CEO Dashboard",
-  "short_name": "RT CEO",
-  "description": "Gold Data CEO Dashboard",
+  "name": "Gold Data — CEO Content Studio",
+  "short_name": "GD CEO Studio",
+  "description": "Strategic LinkedIn content app for Renato Tradardi, CEO of Gold Data",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#0B1623",
+  "background_color": "#050505",
   "theme_color": "#C9A84C",
-  "orientation": "portrait"
+  "orientation": "landscape-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }

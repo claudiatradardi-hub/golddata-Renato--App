@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="light-content">
+<meta name="apple-mobile-web-app-title" content="RT CEO">
+<title>Renato Tradardi · CEO Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --navy:#0B1623;--navy2:#142030;--navy3:#1C2D42;
+  --gold:#C9A84C;--gold2:#E8C96A;--gold3:#8B6408;
+  --gold-dim:rgba(201,168,76,0.1);--gold-dim2:rgba(201,168,76,0.18);
+  --white:#FFFFFF;--offwhite:#FAFAF8;--bg:#F5F3EE;
+  --card:#FFFFFF;--card2:#F9F7F3;
+  --text:#0B1623;--text2:#4A4030;--text3:#9A8E7A;
+  --green:#2D8A5E;--green-bg:rgba(45,138,94,0.08);
+  --yellow:#B8860B;--yellow-bg:rgba(184,134,11,0.08);
+  --red:#C0392B;--red-bg:rgba(192,57,43,0.08);
+  --blue:#1A5C8A;--blue-bg:rgba(26,92,138,0.08);
+  --border:rgba(11,22,35,0.08);--border-gold:rgba(201,168,76,0.2);
+  --sh:0 1px 12px rgba(11,22,35,0.06);
+  --sh2:0 4px 24px rgba(11,22,35,0.1);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:"DM Sans",sans-serif;color:var(--text);display:flex;flex-direction:column;}
+
+/* ── LOGIN ── */
+.login-wrap{position:fixed;inset:0;background:var(--navy);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;}
+.login-wrap.gone{display:none;}
+.login-badge{font-family:"Syne",sans-serif;font-size:10px;font-weight:700;letter-spacing:0.35em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.login-h{font-family:"Syne",sans-serif;font-size:34px;font-weight:800;color:var(--white);margin-bottom:3px;}
+.login-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:52px;}
+.login-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;align-self:flex-start;width:100%;max-width:320px;}
+.login-inp{width:100%;max-width:320px;background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:14px;padding:16px 20px;font-size:16px;color:var(--white);font-family:"DM Sans",sans-serif;outline:none;margin-bottom:16px;}
+.login-inp:focus{border-color:var(--gold);}
+.login-btn{width:100%;max-width:320px;background:linear-gradient(135deg,var(--gold),var(--gold3));border:none;border-radius:14px;padding:17px;font-size:14px;font-weight:700;color:var(--navy);font-family:"Syne",sans-serif;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;margin-top:4px;}
+.login-err{font-size:12px;color:#E05555;margin-top:8px;display:none;}
+
+/* ── HEADER ── */
+.hdr{flex-shrink:0;background:var(--navy);padding:10px 18px;padding-top:calc(10px + var(--safe-top));display:flex;align-items:center;justify-content:space-between;}
+.hdr-left{}
+.hdr-name{font-family:"Syne",sans-serif;font-size:12px;font-weight:800;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;}
+.hdr-date{font-size:11px;color:rgba(255,255,255,0.35);margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.hdr-evt{background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.2);border-radius:20px;padding:5px 12px;font-size:10px;color:var(--gold);font-weight:600;letter-spacing:0.05em;white-space:nowrap;}
+
+/* ── SCROLL ── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+
+/* ── PANELS ── */
+.panel{display:none;padding:16px 16px calc(80px + var(--safe-bottom));}
+.panel.on{display:block;}
+
+/* ── BOTTOM NAV ── */
+.bnav{flex-shrink:0;background:var(--white);border-top:1px solid var(--border);padding:6px 0;padding-bottom:calc(6px + var(--safe-bottom));display:grid;grid-template-columns:repeat(6,1fr);z-index:50;box-shadow:0 -4px 20px rgba(11,22,35,0.06);}
+.bn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:5px 2px;color:rgba(11,22,35,0.25);font-family:"DM Sans",sans-serif;}
+.bn.on{color:var(--navy);}
+.bn.on .bl{color:var(--gold);font-weight:700;}
+.bi{font-size:18px;line-height:1;}
+.bl{font-size:7.5px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--sh);}
+.card-gold{border-color:var(--border-gold);background:linear-gradient(135deg,rgba(201,168,76,0.04),var(--white));}
+.card-alert{border-color:rgba(192,57,43,0.2)!important;background:rgba(192,57,43,0.03)!important;}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.card-title{font-family:"Syne",sans-serif;font-size:12px;font-weight:700;color:var(--navy);letter-spacing:0.06em;text-transform:uppercase;}
+.add-btn{background:var(--navy);border:none;border-radius:8px;padding:6px 12px;font-size:10px;font-weight:700;color:var(--gold);cursor:pointer;font-family:"Syne",sans-serif;letter-spacing:0.06em;text-transform:uppercase;}
+.add-btn:active{opacity:0.8;}
+.add-btn-ghost{background:transparent;border:1px solid var(--border-gold);border-radius:8px;padding:6px 12px;font-size:10px;font-weight:600;color:var(--gold3);cursor:pointer;font-family:"DM Sans",sans-serif;}
+
+/* ── TODAY ── */
+.greet{font-family:"Syne",sans-serif;font-size:24px;font-weight:800;color:var(--navy);line-height:1.1;margin-bottom:3px;}
+.greet-sub{font-size:12px;color:var(--text3);margin-bottom:20px;}
+
+.semaphore{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.sem-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center;box-shadow:var(--sh);}
+.sem-num{font-family:"Syne",sans-serif;font-size:28px;font-weight:800;line-height:1;}
+.sem-lbl{font-size:8.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-top:3px;color:var(--text3);}
+.sem-green .sem-num{color:var(--green);}
+.sem-yellow .sem-num{color:var(--yellow);}
+.sem-red .sem-num{color:var(--red);}
+
+.next-card{background:var(--navy);border-radius:16px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.nc-ico{font-size:28px;flex-shrink:0;}
+.nc-badge{font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.nc-title{font-family:"Syne",sans-serif;font-size:15px;font-weight:700;color:var(--white);}
+.nc-date{font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;}
+.nc-count{margin-left:auto;text-align:center;flex-shrink:0;}
+.nc-days{font-family:"Syne",sans-serif;font-size:26px;font-weight:800;color:var(--gold);line-height:1;}
+.nc-d{font-size:8px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:0.1em;}
+
+.meeting-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.meeting-row:last-child{border-bottom:none;}
+.mt-time{font-family:"Syne",sans-serif;font-size:12px;font-weight:700;color:var(--gold3);min-width:46px;}
+.mt-info{flex:1;}
+.mt-title{font-size:13px;color:var(--text);font-weight:500;}
+.mt-tag{font-size:10px;color:var(--text3);margin-top:1px;}
+.mt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+.priority-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.priority-row:last-child{border-bottom:none;}
+.pr-num{font-family:"Syne",sans-serif;font-size:20px;font-weight:800;color:var(--gold);opacity:0.35;min-width:22px;line-height:1.2;}
+.pr-text{font-size:12px;color:var(--text2);line-height:1.55;flex:1;}
+
+/* ── CALENDAR ── */
+.cal-month-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-month-name{font-family:"Syne",sans-serif;font-size:16px;font-weight:700;color:var(--navy);}
+.cal-nav{background:none;border:1px solid var(--border);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text2);}
+.cal-grid-hdr{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
+.cal-dh{text-align:center;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;padding:4px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:16px;}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;position:relative;}
+.cal-day.today{background:var(--navy);color:var(--white);font-weight:700;}
+.cal-day.has-event::after{content:"";position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold);}
+.cal-day.today.has-event::after{background:var(--gold2);}
+.cal-day.other-month{opacity:0.3;}
+.cal-day:active{background:var(--gold-dim);}
+
+.cal-event-list{}
+.cal-event-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;}
+.cei-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cei-info{flex:1;}
+.cei-title{font-size:13px;font-weight:600;color:var(--text);}
+.cei-date{font-size:10px;color:var(--text3);margin-top:2px;}
+.cei-area{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:600;letter-spacing:0.04em;}
+
+/* ── PROJECTS ── */
+.area-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:none;}
+.area-scroll::-webkit-scrollbar{display:none;}
+.at{flex-shrink:0;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;font-family:"DM Sans",sans-serif;}
+.at.on{background:var(--navy);border-color:var(--navy);color:var(--gold);font-weight:700;}
+
+.proj-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:var(--sh);}
+.proj-main{padding:14px;}
+.proj-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;}
+.proj-name{font-family:"Syne",sans-serif;font-size:14px;font-weight:700;color:var(--navy);flex:1;padding-right:8px;}
+.proj-badge{font-size:9px;font-weight:700;padding:3px 9px;border-radius:6px;letter-spacing:0.05em;white-space:nowrap;flex-shrink:0;}
+.pb-green{background:var(--green-bg);color:var(--green);}
+.pb-yellow{background:var(--yellow-bg);color:var(--yellow);}
+.pb-red{background:var(--red-bg);color:var(--red);}
+.proj-note{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:10px;}
+.proj-bar-bg{background:rgba(11,22,35,0.07);border-radius:4px;height:5px;overflow:hidden;margin-bottom:4px;}
+.proj-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 0.6s ease;}
+.proj-pct{font-size:10px;color:var(--text3);text-align:right;font-weight:600;}
+.proj-actions{display:flex;border-top:1px solid var(--border);}
+.proj-action-btn{flex:1;padding:10px;background:none;border:none;font-size:10px;font-weight:600;color:var(--text2);cursor:pointer;font-family:"DM Sans",sans-serif;letter-spacing:0.04em;text-transform:uppercase;border-right:1px solid var(--border);}
+.proj-action-btn:last-child{border-right:none;}
+.proj-action-btn:active{background:var(--gold-dim);}
+
+/* PROJECT DETAIL DRAWER */
+.proj-detail{display:none;padding:0 14px 14px;}
+.proj-detail.open{display:block;}
+.pd-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.pd-tab{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:10px;font-weight:600;color:var(--text2);cursor:pointer;font-family:"DM Sans",sans-serif;}
+.pd-tab.on{background:var(--navy);border-color:var(--navy);color:var(--gold);}
+.pd-content{} 
+.task-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
+.task-item:last-child{border-bottom:none;}
+.task-check{width:18px;height:18px;border:2px solid var(--border-gold);border-radius:5px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.task-check.done{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+.task-text{font-size:12px;color:var(--text);flex:1;}
+.task-text.done{text-decoration:line-through;color:var(--text3);}
+.note-blob{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.note-blob-text{font-size:12px;color:var(--text2);line-height:1.6;}
+.note-blob-date{font-size:9px;color:var(--text3);margin-top:6px;}
+
+/* ── EVENTS ── */
+.event-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);}
+.ev-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.ev-title{font-family:"Syne",sans-serif;font-size:14px;font-weight:700;color:var(--navy);}
+.ev-type{font-size:9px;color:var(--text3);margin-top:2px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;}
+.ev-badge{font-size:9px;font-weight:700;padding:4px 9px;border-radius:7px;letter-spacing:0.05em;white-space:nowrap;flex-shrink:0;}
+.eb-up{background:var(--gold-dim2);color:var(--gold3);}
+.eb-today{background:var(--green-bg);color:var(--green);}
+.eb-past{background:rgba(0,0,0,0.04);color:var(--text3);}
+.ev-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.ev-row span{font-size:11px;color:var(--text2);}
+.ev-ico{font-size:13px;}
+.weather-box{background:linear-gradient(135deg,rgba(26,92,138,0.06),rgba(201,168,76,0.04));border:1px solid var(--blue-bg);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-top:10px;}
+.wb-ico{font-size:24px;}
+.wb-temp{font-family:"Syne",sans-serif;font-size:20px;font-weight:700;color:var(--blue);}
+.wb-desc{font-size:10px;color:var(--text3);margin-top:1px;}
+.wb-lbl{margin-left:auto;font-size:9px;color:var(--text3);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;}
+
+/* ── NEWS ── */
+.news-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--sh);}
+.news-src{font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold3);margin-bottom:6px;}
+.news-title{font-family:"Syne",sans-serif;font-size:14px;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:7px;}
+.news-sum{font-size:11px;color:var(--text2);line-height:1.65;margin-bottom:8px;}
+.news-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.news-tag{background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:5px;padding:2px 7px;font-size:9px;color:var(--gold3);font-weight:600;}
+.news-date{font-size:9px;color:var(--text3);font-weight:500;}
+.comp-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:var(--sh);}
+.comp-name{font-family:"Syne",sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.comp-text{font-size:11px;color:var(--text2);line-height:1.6;}
+.comp-date{font-size:9px;color:var(--text3);margin-top:6px;}
+.intel-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.it-tab{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;font-family:"DM Sans",sans-serif;text-align:center;}
+.it-tab.on{background:var(--navy);border-color:var(--navy);color:var(--gold);}
+.refresh-note{text-align:center;padding:10px 0 4px;font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.05em;}
+
+/* ── NOTES ── */
+.note-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:8px;box-shadow:var(--sh);}
+.note-text{font-size:13px;color:var(--text);line-height:1.55;margin-bottom:6px;}
+.note-meta{display:flex;align-items:center;gap:8px;}
+.note-area-tag{background:var(--gold-dim);border-radius:5px;padding:2px 8px;font-size:9px;color:var(--gold3);font-weight:700;}
+.note-date{font-size:9px;color:var(--text3);}
+
+/* ── SECTION HDR ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-family:"Syne",sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);}
+
+/* ── MODAL ── */
+.mbg{display:none;position:fixed;inset:0;z-index:200;background:rgba(11,22,35,0.6);align-items:flex-end;backdrop-filter:blur(4px);}
+.mbg.open{display:flex;}
+.modal{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding-bottom:var(--safe-bottom);}
+.modal-hdr{padding:20px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--white);z-index:1;border-radius:24px 24px 0 0;}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px;}
+.modal-title{font-family:"Syne",sans-serif;font-size:16px;font-weight:700;color:var(--navy);}
+.modal-x{width:30px;height:30px;background:var(--card2);border:none;border-radius:8px;font-size:18px;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.mbody{padding:16px 20px;}
+.flbl{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;}
+.fin{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;font-size:15px;color:var(--text);font-family:"DM Sans",sans-serif;outline:none;margin-bottom:14px;}
+.fin:focus{border-color:var(--gold);}
+.fsel{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;font-size:15px;color:var(--text);font-family:"DM Sans",sans-serif;outline:none;margin-bottom:14px;-webkit-appearance:none;}
+.fta{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;font-size:14px;color:var(--text);font-family:"DM Sans",sans-serif;outline:none;margin-bottom:14px;resize:none;min-height:80px;}
+.modal-ftr{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;}
+.mbtn-cancel{flex:1;padding:13px;background:var(--card2);border:1px solid var(--border);border-radius:12px;color:var(--text2);font-size:13px;cursor:pointer;font-family:"DM Sans",sans-serif;font-weight:600;}
+.mbtn-save{flex:2;padding:13px;background:var(--navy);border:none;border-radius:12px;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:"Syne",sans-serif;letter-spacing:0.05em;}
+
+/* ── NOTIF ── */
+.notif{position:fixed;bottom:calc(72px + var(--safe-bottom) + 10px);left:14px;right:14px;z-index:300;background:var(--navy);border:1px solid rgba(201,168,76,0.2);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;transform:translateY(16px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;box-shadow:var(--sh2);}
+.notif.show{transform:translateY(0);opacity:1;}
+.ntxt{font-size:12px;color:rgba(255,255,255,0.9);font-weight:500;}
+
+.quick-action{display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 8px;cursor:pointer;font-family:"DM Sans",sans-serif;box-shadow:var(--sh);-webkit-tap-highlight-color:transparent;}
+.quick-action:active{background:var(--gold-dim);border-color:var(--border-gold);}
+.quick-action .bi-q{font-size:20px;}
+.quick-action span{font-size:10px;font-weight:600;color:var(--text2);letter-spacing:0.04em;}
+::-webkit-scrollbar{width:0;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-badge">Gold Data</div>
+  <div class="login-h">Renato Tradardi</div>
+  <div class="login-sub">CEO Dashboard · Acceso Privado</div>
+  <div class="login-lbl">Contraseña</div>
+  <input class="login-inp" type="password" id="loginP" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+  <div class="login-err" id="loginErr">Contraseña incorrecta. Intenta de nuevo.</div>
+  <button class="login-btn" onclick="doLogin()">Entrar</button>
+</div>
+
+<!-- HEADER -->
+<header class="hdr" id="appHdr" style="display:none;">
+  <div class="hdr-left">
+    <div class="hdr-name">RT · CEO</div>
+    <div class="hdr-date" id="hdrDate"></div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-evt" id="hdrEvt">—</div>
+  </div>
+</header>
+
+<!-- SCROLL -->
+<div class="scroll" id="appScroll" style="display:none;">
+
+  <!-- HOY -->
+  <div id="p-hoy" class="panel on">
+    <div class="greet" id="greeting">Buenos días, Renato.</div>
+    <div class="greet-sub" id="greetSub">—</div>
+
+    <!-- SEMAPHORE -->
+    <div class="semaphore">
+      <div class="sem-card sem-green" onclick="nav('proj')" style="cursor:pointer;"><div class="sem-num" id="sG">—</div><div class="sem-lbl">En Track</div></div>
+      <div class="sem-card sem-yellow" onclick="nav('proj')" style="cursor:pointer;"><div class="sem-num" id="sY">—</div><div class="sem-lbl">Atención</div></div>
+      <div class="sem-card sem-red" onclick="nav('proj')" style="cursor:pointer;"><div class="sem-num" id="sR">—</div><div class="sem-lbl">Crítico</div></div>
+    </div>
+
+    <!-- NEXT EVENT -->
+    <div class="next-card" id="nextCard" onclick="nav('events')" style="cursor:pointer;">
+      <div class="nc-ico">✈️</div>
+      <div style="flex:1;"><div class="nc-badge">Próximo Evento</div><div class="nc-title" id="ncTitle">—</div><div class="nc-date" id="ncDate">—</div></div>
+      <div class="nc-count"><div class="nc-days" id="ncDays">—</div><div class="nc-d">DÍAS</div></div>
+    </div>
+
+    <!-- MEETINGS HOY -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Agenda de Hoy</div><button class="add-btn" onclick="openModal('meeting')">+ Meeting</button></div>
+      <div id="todayList"><div style="font-size:12px;color:var(--text3);padding:6px 0;">Sin reuniones. Presiona + para agregar.</div></div>
+    </div>
+
+    <!-- CRITICAL ALERT -->
+    <div id="criticalAlert" style="display:none;" class="card" style="border-color:rgba(192,57,43,0.25);background:rgba(192,57,43,0.04);">
+      <div class="card-hdr"><div class="card-title" style="color:var(--red);">⚠️ Requieren Atención Inmediata</div></div>
+      <div id="criticalList"></div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+      <button class="quick-action" onclick="openModal('meeting')"><span style="font-size:20px;">📅</span><span>Meeting</span></button>
+      <button class="quick-action" onclick="openModal('note')"><span style="font-size:20px;">📝</span><span>Nota</span></button>
+      <button class="quick-action" onclick="nav('news')"><span style="font-size:20px;">📰</span><span>Noticias</span></button>
+      <button class="quick-action" onclick="nav('proj')"><span style="font-size:20px;">🚀</span><span>Proyectos</span></button>
+      <button class="quick-action" onclick="openModal('event')"><span style="font-size:20px;">✈️</span><span>Viaje</span></button>
+      <button class="quick-action" onclick="openModal('project')"><span style="font-size:20px;">➕</span><span>Proyecto</span></button>
+    </div>
+
+    <!-- TOP PROJECTS PROGRESS -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Top Proyectos</div><button class="add-btn-ghost" onclick="nav('proj')">Ver todos →</button></div>
+      <div id="topProjects"></div>
+    </div>
+
+    <!-- PRIORITIES -->
+    <div class="card card-gold">
+      <div class="card-hdr"><div class="card-title">Prioridades del Año</div></div>
+      <div id="prioList"></div>
+    </div>
+
+    <!-- UPCOMING EVENTS STRIP -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Próximos Viajes</div><button class="add-btn-ghost" onclick="nav('events')">Ver todos →</button></div>
+      <div id="upcomingStrip"></div>
+    </div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div id="p-cal" class="panel">
+    <div class="sec-hdr"><div class="sec-title">Calendario</div><button class="add-btn" onclick="openModal('meeting')">+ Agregar</button></div>
+    <div class="card">
+      <div class="cal-month-hdr">
+        <button class="cal-nav" onclick="calPrev()">‹</button>
+        <div class="cal-month-name" id="calMonthName">—</div>
+        <button class="cal-nav" onclick="calNext()">›</button>
+      </div>
+      <div class="cal-grid-hdr">
+        <div class="cal-dh">Lun</div><div class="cal-dh">Mar</div><div class="cal-dh">Mié</div>
+        <div class="cal-dh">Jue</div><div class="cal-dh">Vie</div><div class="cal-dh">Sáb</div><div class="cal-dh">Dom</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+    <div class="sec-hdr" style="margin-top:4px;"><div class="sec-title" id="calEvtLabel">Todos los Eventos</div></div>
+    <div id="calEventList"></div>
+  </div>
+
+  <!-- PROYECTOS -->
+  <div id="p-proj" class="panel">
+    <div class="sec-hdr"><div class="sec-title">Proyectos Activos</div><button class="add-btn" onclick="openModal('project')">+ Nuevo</button></div>
+    <div class="area-scroll" id="areaTabs"></div>
+    <div id="projList"></div>
+  </div>
+
+  <!-- EVENTOS -->
+  <div id="p-events" class="panel">
+    <div class="sec-hdr"><div class="sec-title">Viajes & Eventos</div><button class="add-btn" onclick="openModal('event')">+ Agregar</button></div>
+    <div id="eventsList"></div>
+  </div>
+
+  <!-- NOTICIAS -->
+  <div id="p-news" class="panel">
+    <div class="sec-hdr"><div class="sec-title">Inteligencia de Mercado</div></div>
+    <div class="intel-tabs">
+      <div class="it-tab on" id="itNews" onclick="switchIntel('news')">📰 Noticias Telecom</div>
+      <div class="it-tab" id="itComp" onclick="switchIntel('comp')">🏢 Competidores</div>
+    </div>
+    <div id="newsList"></div>
+    <div id="compList" style="display:none;"></div>
+    <div class="refresh-note">🔄 Actualización cada 2 semanas</div>
+  </div>
+
+  <!-- NOTAS -->
+  <div id="p-notes" class="panel">
+    <div class="sec-hdr"><div class="sec-title">Notas Rápidas</div><button class="add-btn" onclick="openModal('note')">+ Nueva</button></div>
+    <div id="notesList"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav" id="appNav" style="display:none;">
+  <button class="bn on" id="bn-hoy" onclick="nav('hoy')"><div class="bi">🏠</div><div class="bl">Hoy</div></button>
+  <button class="bn" id="bn-cal" onclick="nav('cal')"><div class="bi">📅</div><div class="bl">Agenda</div></button>
+  <button class="bn" id="bn-proj" onclick="nav('proj')"><div class="bi">🚀</div><div class="bl">Proyectos</div></button>
+  <button class="bn" id="bn-events" onclick="nav('events')"><div class="bi">✈️</div><div class="bl">Viajes</div></button>
+  <button class="bn" id="bn-news" onclick="nav('news')"><div class="bi">📰</div><div class="bl">Noticias</div></button>
+  <button class="bn" id="bn-notes" onclick="nav('notes')"><div class="bi">📌</div><div class="bl">Notas</div></button>
+</nav>
+
+<!-- MODAL -->
+<div class="mbg" id="modalBg">
+  <div class="modal">
+    <div style="padding:10px 20px 0;"><div class="modal-handle"></div></div>
+    <div class="modal-hdr"><div class="modal-title" id="modalTitle">Agregar</div><button class="modal-x" onclick="closeModal()">×</button></div>
+    <div class="mbody" id="modalBody"></div>
+    <div class="modal-ftr"><button class="mbtn-cancel" onclick="closeModal()">Cancelar</button><button class="mbtn-save" onclick="saveModal()">Guardar</button></div>
+  </div>
+</div>
+
+<div class="notif" id="notif"><span id="nico">✓</span><span class="ntxt" id="ntxt">Listo</span></div>
+
+<script>
+const PWD = "Serpent713";
+const AREAS = ["Comercial","Broadcast","Finanzas","Operaciones","MANTA","Marketing","Otros","Personal"];
+const AREA_COLORS = {Comercial:"#C9A84C",Broadcast:"#1A5C8A",Finanzas:"#2D8A5E",Operaciones:"#C0392B",MANTA:"#6B4C9A",Marketing:"#2D8A5E",Otros:"#8B7D6B",Personal:"#B8860B"};
+
+const DATA = {
+  projects:[
+    {id:1,area:"Comercial",name:"IP Transit México",note:"Alta demanda activa. Negociaciones con carriers internacionales y hyperscalers en curso.",status:"green",pct:65,tasks:[{id:1,text:"Cerrar propuesta con Carrier MX-01",done:true},{id:2,text:"Follow-up hyperscalers Q2",done:false},{id:3,text:"Pricing deck actualizado",done:false}],notes:[]},
+    {id:2,area:"Comercial",name:"Mirror Haul (Gemini)",note:"Desarrollo comercial activo. Materiales para inversionistas en preparación.",status:"yellow",pct:40,tasks:[{id:1,text:"Materiales deck inversionistas",done:false},{id:2,text:"Demo técnica lista",done:true}],notes:[]},
+    {id:3,area:"Comercial",name:"Proceso Altor",note:"Due diligence activo. Preparación de materiales para fondo Altor en curso.",status:"yellow",pct:55,tasks:[{id:1,text:"Data room completo",done:false},{id:2,text:"Reunión virtual Q2",done:false},{id:3,text:"Proyecciones financieras revisadas",done:true}],notes:[]},
+    {id:4,area:"Broadcast",name:"Transporte Contenido LATAM",note:"Desarrollo y comercialización de servicios para media. Evaluación de alianzas.",status:"green",pct:50,tasks:[{id:1,text:"Propuesta a canal regional",done:false},{id:2,text:"Prueba de capacidad de video",done:true}],notes:[]},
+    {id:5,area:"Finanzas",name:"Estructuración MANTA + Backbone MX",note:"Estructuración financiera activa. Gestión de CAPEX prioritario.",status:"yellow",pct:45,tasks:[{id:1,text:"Modelo financiero revisado",done:false},{id:2,text:"Reunión con bancos",done:false}],notes:[]},
+    {id:6,area:"Operaciones",name:"Backbone México CDMX→Veracruz",note:"⚠️ PRIORIDAD MÁXIMA. Cuello de botella crítico para MANTA. Fase activa de construcción.",status:"red",pct:30,tasks:[{id:1,text:"Tramo CDMX-Puebla: permisos",done:false},{id:2,text:"Contratista confirmado tramo Puebla-Veracruz",done:false},{id:3,text:"Revisión avance semana",done:false}],notes:[]},
+    {id:7,area:"Operaciones",name:"Upgrades 100G/200G",note:"Expansión de capacidad de red. Coordinación con proveedores en curso.",status:"yellow",pct:50,tasks:[{id:1,text:"Orden de equipos confirmada",done:true},{id:2,text:"Ventana de mantenimiento agendada",done:false}],notes:[]},
+    {id:8,area:"MANTA",name:"Sistema Submarino MANTA",note:"Estrategia, permisos y ejecución. Target: Q1 2028. Coordinación con socios e inversionistas.",status:"yellow",pct:25,tasks:[{id:1,text:"Permisos Fase 1 aprobados",done:false},{id:2,text:"RFP a proveedores de cable",done:false},{id:3,text:"Roadshow inversionistas MANTA",done:false}],notes:[]},
+    {id:9,area:"MANTA",name:"Posicionamiento MANTA",note:"Posicionamiento como infraestructura clave regional. Comercial y mediático.",status:"green",pct:45,tasks:[{id:1,text:"Artículo en TeleGeography",done:false},{id:2,text:"Presentación en ITW",done:false}],notes:[]},
+    {id:10,area:"Otros",name:"Implementación AI",note:"Agente inteligente y automatización interna. En fase de implementación.",status:"green",pct:60,tasks:[{id:1,text:"CEO Dashboard live",done:false},{id:2,text:"Integración con CRM",done:false}],notes:[]},
+  ],
+  events:[
+    {id:1,title:"ITW 2026",location:"National Harbor, MD, USA",dates:"May 18-21, 2026",start:"2026-05-18",type:"Industria",weather:{temp:"18°C",desc:"Parcialmente nublado",icon:"⛅"},notes:"Welcome Reception: Dark Fiber Telecom Rock Ensemble · Lunes 18 · 6-8 PM · Riverview Ballroom. Reuniones estratégicas ITW agendadas."},
+    {id:2,title:"Dark Fiber — Telecom Rock Ensemble",location:"Gaylord National, MD, USA",dates:"Lunes May 18 · 6-8 PM",start:"2026-05-18",type:"Música",weather:{temp:"18°C",desc:"Parcialmente nublado",icon:"⛅"},notes:"Presentación en escenario durante ITW Welcome Reception. Practicar antes del evento."},
+    {id:3,title:"Mexico Connect 2026",location:"Ciudad de México, México",dates:"Sep 9-10, 2026",start:"2026-09-09",type:"Industria",weather:{temp:"22°C",desc:"Soleado",icon:"☀️"},notes:"Confirmado asistencia."},
+  ],
+  meetings:[
+    {id:1,time:"09:00",title:"Revisión Backbone México",tag:"Operaciones",color:"#C0392B",date:new Date().toISOString().split("T")[0]},
+    {id:2,time:"11:30",title:"Call Altor — Due Diligence",tag:"Finanzas",color:"#C9A84C",date:new Date().toISOString().split("T")[0]},
+    {id:3,time:"15:00",title:"Sync Marketing — MANTA Positioning",tag:"Marketing",color:"#1A5C8A",date:new Date().toISOString().split("T")[0]},
+  ],
+  priorities:[
+    "Cerrar inversión estratégica (Altor) para asegurar ejecución completa del backbone México + MANTA",
+    "Ejecutar construcción del backbone en tiempo y forma — CDMX → Veracruz (tramos críticos 2026-2027)",
+    "Posicionar MANTA como el proyecto de infraestructura digital más importante de la región"
+  ],
+  news:[
+    {src:"TeleGeography",url:"https://www.telegeography.com",title:"Demanda de capacidad subsea en el Caribe crece 40% en 2026",sum:"Los carriers reportan aumento significativo en solicitudes hacia Venezuela y el Caribe impulsado por enterprise y gobierno.",tags:["MANTA","Estrategia"],date:"Hace 3 días"},
+    {src:"Capacity Media",url:"https://www.capacitymedia.com",title:"IA generativa dispara demanda de redes de baja latencia en LATAM",sum:"Las empresas buscan proveedores que garanticen latencias bajo 20ms. Oportunidad directa para Gold Data.",tags:["Comercial","IP Transit"],date:"Hace 5 días"},
+    {src:"BNamericas",url:"https://www.bnamericas.com",title:"México acelera agenda de infraestructura digital 2026-2030",sum:"El gobierno mexicano anuncia inversiones en conectividad. Proveedores con infraestructura propia tienen ventaja en licitaciones.",tags:["Backbone MX"],date:"Hace 1 semana"},
+    {src:"ITW 2026",url:"https://www.internationaltelecomsweek.com",title:"Hyperscalers buscan rutas propias en LATAM — alternativas a Miami",sum:"Tendencia clara hacia rutas directas regionales. Posiciona el Proyecto MANTA como solución estratégica clave.",tags:["MANTA","Comercial"],date:"Hace 1 semana"},
+    {src:"Telecom Review Americas",url:"https://www.telecomreview.com",title:"Cables submarinos: papel crítico en resiliencia regional",sum:"Análisis sobre cómo los sistemas de cable propio cambian la ecuación de dependencia para los mercados latinoamericanos.",tags:["MANTA"],date:"Hace 10 días"},
+    {src:"Reuters",url:"https://www.reuters.com/technology",title:"Inversión en infraestructura digital en México supera $3B en 2026",sum:"El sector privado lidera inversión en fibra y data centers. Backbone terrestre como prioridad para carriers regionales.",tags:["Backbone MX","Finanzas"],date:"Hace 2 semanas"},
+  ],
+  competitors:[
+    {name:"Liberty Networks",update:"Expandiendo rutas en el Caribe. Nuevos POPs en República Dominicana y Puerto Rico. Enfoque en enterprise.",date:"Hace 2 semanas"},
+    {name:"Cirion Technologies",update:"Nueva capacidad en el corredor Brasil-Miami. Aumentaron marketing de soluciones SD-WAN para enterprise.",date:"Hace 1 semana"},
+    {name:"Sparkle",update:"Nuevos acuerdos de capacidad en rutas transatlánticas. Sin movimiento significativo en LATAM regional.",date:"Hace 3 semanas"},
+    {name:"Ufinet",update:"Expansión activa en Centroamérica. Nuevos mercados en Guatemala y Honduras. No compiten directamente en México.",date:"Hace 2 semanas"},
+    {name:"IENTC",update:"Reforzando posición en México. Nuevos acuerdos con carriers en Monterrey. Competencia directa en backbone.",date:"Hace 1 semana"},
+  ],
+  notes:[]
+};
+
+let curArea="Comercial", calDate=new Date(), curModal=null, calSelDate=null;
+
+// ── AUTH ──
+function doLogin(){
+  if(document.getElementById("loginP").value===PWD){
+    document.getElementById("loginWrap").classList.add("gone");
+    document.getElementById("appHdr").style.display="flex";
+    document.getElementById("appScroll").style.display="block";
+    document.getElementById("appNav").style.display="grid";
+    initApp();
+  } else {
+    document.getElementById("loginErr").style.display="block";
+    document.getElementById("loginP").value="";
+  }
+}
+
+// ── INIT ──
+function initApp(){
+  const now=new Date();
+  const DAYS=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  document.getElementById("hdrDate").textContent=DAYS[now.getDay()]+", "+now.getDate()+" "+MONTHS[now.getMonth()];
+  const h=now.getHours();
+  document.getElementById("greeting").textContent=(h<12?"Buenos días":h<18?"Buenas tardes":"Buenas noches")+", Renato.";
+  document.getElementById("greetSub").textContent=DAYS[now.getDay()]+", "+now.getDate()+" de "+MONTHS[now.getMonth()]+" "+now.getFullYear();
+  updateSemaphore();
+  renderNextEvent();
+  renderMeetings();
+  renderPriorities();
+  renderCal();
+  renderAreaTabs();
+  renderProjects();
+  renderEvents();
+  renderNews();
+  renderCompetitors();
+  renderNotes();
+  renderTopProjects();
+  renderCriticalAlert();
+  renderUpcomingStrip();
+}
+
+function updateSemaphore(){
+  document.getElementById("sG").textContent=DATA.projects.filter(p=>p.status==="green").length;
+  document.getElementById("sY").textContent=DATA.projects.filter(p=>p.status==="yellow").length;
+  document.getElementById("sR").textContent=DATA.projects.filter(p=>p.status==="red").length;
+}
+
+function renderNextEvent(){
+  const now=new Date();
+  const up=DATA.events.filter(e=>new Date(e.start)>=now).sort((a,b)=>new Date(a.start)-new Date(b.start));
+  if(up.length>0){
+    const ne=up[0];
+    const diff=Math.ceil((new Date(ne.start)-now)/(864e5));
+    document.getElementById("ncTitle").textContent=ne.title;
+    document.getElementById("ncDate").textContent=ne.dates+" · "+ne.location;
+    document.getElementById("ncDays").textContent=diff<=0?"Hoy":diff;
+    document.getElementById("hdrEvt").textContent=ne.title.split(" ").slice(0,2).join(" ")+" "+(diff<=0?"·Hoy":"·"+diff+"d");
+  }
+}
+
+function renderMeetings(){
+  const today=new Date().toISOString().split("T")[0];
+  const m=DATA.meetings.filter(x=>x.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+  const el=document.getElementById("todayList");
+  el.innerHTML=m.length===0?'<div style="font-size:12px;color:var(--text3);padding:6px 0;">Sin reuniones hoy.</div>':
+    m.map(x=>`<div class="meeting-row">
+      <div class="mt-time">${x.time}</div>
+      <div class="mt-info"><div class="mt-title">${x.title}</div><div class="mt-tag">${x.tag}</div></div>
+      <div class="mt-dot" style="background:${x.color}"></div>
+    </div>`).join("");
+}
+
+function renderPriorities(){
+  document.getElementById("prioList").innerHTML=DATA.priorities.map((p,i)=>`
+    <div class="priority-row">
+      <div class="pr-num">${i+1}</div>
+      <div class="pr-text">${p}</div>
+    </div>`).join("");
+}
+
+// ── CALENDAR ──
+const MONTH_NAMES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+function calPrev(){calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1);renderCal();}
+function calNext(){calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1);renderCal();}
+
+function renderTopProjects(){
+  const top = DATA.projects.filter(p=>p.status!=="green").slice(0,3).concat(
+    DATA.projects.filter(p=>p.status==="red")
+  ).filter((p,i,a)=>a.findIndex(x=>x.id===p.id)===i).slice(0,4);
+  const all = top.length===0 ? DATA.projects.slice(0,3) : top;
+  const el=document.getElementById("topProjects");
+  if(!el)return;
+  el.innerHTML=all.map(p=>`
+    <div style="padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="nav('proj')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text);flex:1;padding-right:8px;">${p.name}</div>
+        <div class="proj-badge pb-${p.status}" style="font-size:8px;padding:2px 7px;">${p.status==="green"?"✅ Track":p.status==="yellow"?"⚠️ Atención":"🔴 Crítico"}</div>
+      </div>
+      <div style="background:rgba(11,22,35,0.07);border-radius:3px;height:4px;overflow:hidden;">
+        <div style="width:${p.pct}%;height:100%;border-radius:3px;background:${p.status==="red"?"var(--red)":p.status==="yellow"?"var(--yellow)":"linear-gradient(90deg,var(--gold),var(--gold2))"}"></div>
+      </div>
+      <div style="font-size:9px;color:var(--text3);text-align:right;margin-top:2px;font-weight:600;">${p.pct}%</div>
+    </div>`).join("");
+}
+
+function renderCriticalAlert(){
+  const critical = DATA.projects.filter(p=>p.status==="red");
+  const el=document.getElementById("criticalAlert");
+  const list=document.getElementById("criticalList");
+  if(!el||!list)return;
+  if(critical.length===0){el.style.display="none";return;}
+  el.style.display="block";
+  el.className="card card-alert";
+  list.innerHTML=critical.map(p=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(192,57,43,0.1);">
+      <div style="font-size:16px;">🔴</div>
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:600;color:var(--text);">${p.name}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px;">${p.area} · ${p.pct}% avance</div>
+      </div>
+    </div>`).join("");
+}
+
+function renderUpcomingStrip(){
+  const now=new Date();
+  const up=DATA.events.filter(e=>new Date(e.start)>=now).sort((a,b)=>new Date(a.start)-new Date(b.start)).slice(0,3);
+  const el=document.getElementById("upcomingStrip");
+  if(!el)return;
+  if(up.length===0){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:6px 0;">Sin viajes próximos.</div>';return;}
+  el.innerHTML=up.map(e=>{
+    const diff=Math.ceil((new Date(e.start)-now)/864e5);
+    return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);" onclick="nav('events')" class="cursor-ptr">
+      <div style="font-size:20px;">${e.type==="Música"?"🎵":e.type==="Personal"?"👤":"✈️"}</div>
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:600;color:var(--text);">${e.title}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px;">📍 ${e.location}</div>
+      </div>
+      <div style="background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:8px;padding:4px 8px;text-align:center;flex-shrink:0;">
+        <div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--gold3);">${diff<=0?"Hoy":diff}</div>
+        <div style="font-size:7px;color:var(--text3);font-weight:600;letter-spacing:.06em;">${diff<=0?"":"días"}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderCal(){
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById("calMonthName").textContent=MONTH_NAMES[m]+" "+y;
+  const first=new Date(y,m,1);
+  const last=new Date(y,m+1,0);
+  let startDow=first.getDay();
+  if(startDow===0)startDow=7;
+  const today=new Date();
+  const eventDates=new Set(DATA.events.map(e=>e.start.substring(0,7)===(y+"-"+String(m+1).padStart(2,"0"))?parseInt(e.start.split("-")[2]):null).filter(Boolean));
+  const meetingDates=new Set(DATA.meetings.map(me=>{
+    const d=new Date(me.date);
+    if(d.getMonth()===m&&d.getFullYear()===y)return d.getDate();
+    return null;
+  }).filter(Boolean));
+
+  let html="";
+  for(let i=1;i<startDow;i++){
+    const d=new Date(y,m,1-startDow+i);
+    html+=`<div class="cal-day other-month">${d.getDate()}</div>`;
+  }
+  for(let d=1;d<=last.getDate();d++){
+    const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+    const hasEv=eventDates.has(d)||meetingDates.has(d);
+    const dateStr=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    html+=`<div class="cal-day${isToday?" today":""}${hasEv?" has-event":""}" onclick="calDayClick('${dateStr}')">${d}</div>`;
+  }
+  document.getElementById("calGrid").innerHTML=html;
+  renderCalEvents(null);
+}
+
+function calDayClick(dateStr){
+  calSelDate=dateStr;
+  renderCalEvents(dateStr);
+}
+
+function renderCalEvents(filterDate){
+  const el=document.getElementById("calEventList");
+  const lbl=document.getElementById("calEvtLabel");
+  let items=[];
+  DATA.meetings.forEach(m=>{
+    if(!filterDate||m.date===filterDate)
+      items.push({title:m.title,date:m.date+" · "+m.time,area:m.tag,color:m.color,type:"meeting"});
+  });
+  DATA.events.forEach(e=>{
+    if(!filterDate||e.start===filterDate)
+      items.push({title:e.title,date:e.dates,area:e.type,color:AREA_COLORS[e.type]||"#C9A84C",type:"event"});
+  });
+  items.sort((a,b)=>a.date.localeCompare(b.date));
+  lbl.textContent=filterDate?"Eventos del "+parseInt(filterDate.split("-")[2])+" de "+MONTH_NAMES[parseInt(filterDate.split("-")[1])-1]:"Próximos Eventos";
+  if(items.length===0){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;text-align:center;">Sin eventos este día.</div>';return;}
+  el.innerHTML=items.map(it=>`
+    <div class="cal-event-item">
+      <div class="cei-dot" style="background:${it.color}"></div>
+      <div class="cei-info"><div class="cei-title">${it.title}</div><div class="cei-date">${it.date}</div></div>
+      <div class="cei-area" style="background:${it.color}18;color:${it.color}">${it.area}</div>
+    </div>`).join("");
+}
+
+// ── PROJECTS ──
+function renderAreaTabs(){
+  const areas=[...new Set(DATA.projects.map(p=>p.area))];
+  document.getElementById("areaTabs").innerHTML=areas.map(a=>`
+    <button class="at${a===curArea?" on":""}" onclick="switchArea(this,'${a}')">${a}</button>`).join("");
+}
+
+function switchArea(btn,area){
+  curArea=area;
+  document.querySelectorAll(".at").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  renderProjects();
+}
+
+function renderProjects(){
+  const filtered=DATA.projects.filter(p=>p.area===curArea);
+  if(filtered.length===0){document.getElementById("projList").innerHTML='<div style="font-size:12px;color:var(--text3);padding:16px;text-align:center;">Sin proyectos. Presiona + Nuevo para agregar.</div>';return;}
+  document.getElementById("projList").innerHTML=filtered.map(p=>`
+    <div class="proj-card" id="pc-${p.id}">
+      <div class="proj-main">
+        <div class="proj-top">
+          <div class="proj-name">${p.name}</div>
+          <div class="proj-badge pb-${p.status}">${p.status==="green"?"En Track":p.status==="yellow"?"Atención":"Crítico"}</div>
+        </div>
+        <div class="proj-note">${p.note}</div>
+        <div class="proj-bar-bg"><div class="proj-bar-fill" style="width:${p.pct}%"></div></div>
+        <div class="proj-pct">${p.pct}% completado</div>
+      </div>
+      <div class="proj-actions">
+        <button class="proj-action-btn" onclick="toggleProjDetail(${p.id},'overview')">📊 Overview</button>
+        <button class="proj-action-btn" onclick="toggleProjDetail(${p.id},'tasks')">✅ Tasks</button>
+        <button class="proj-action-btn" onclick="toggleProjDetail(${p.id},'notes')">📝 Notas</button>
+        <button class="proj-action-btn" onclick="openModal('projUpdate',${p.id})">⚡ Update</button>
+      </div>
+      <div class="proj-detail" id="pd-${p.id}"></div>
+    </div>`).join("");
+}
+
+function toggleProjDetail(id,tab){
+  const det=document.getElementById("pd-"+id);
+  const proj=DATA.projects.find(p=>p.id===id);
+  if(!proj)return;
+  if(det.classList.contains("open")&&det.dataset.tab===tab){det.classList.remove("open");det.innerHTML="";return;}
+  det.classList.add("open");
+  det.dataset.tab=tab;
+  let html=`<div class="pd-tabs">
+    <button class="pd-tab${tab==="overview"?" on":""}" onclick="toggleProjDetail(${id},'overview')">Overview</button>
+    <button class="pd-tab${tab==="tasks"?" on":""}" onclick="toggleProjDetail(${id},'tasks')">Tasks</button>
+    <button class="pd-tab${tab==="notes"?" on":""}" onclick="toggleProjDetail(${id},'notes')">Notas</button>
+  </div><div class="pd-content">`;
+  if(tab==="overview"){
+    html+=`<div style="padding:8px 0;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:var(--gold);">${proj.pct}%</div>
+          <div style="font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-top:2px;">Avance</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:${proj.status==="green"?"var(--green)":proj.status==="yellow"?"var(--yellow)":"var(--red)"};">${proj.tasks?proj.tasks.filter(t=>t.done).length:0}/${proj.tasks?proj.tasks.length:0}</div>
+          <div style="font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-top:2px;">Tasks</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6;">${proj.note}</div>
+    </div>`;
+  } else if(tab==="tasks"){
+    html+=`<div style="padding:4px 0;">${(proj.tasks||[]).length===0?'<div style="font-size:12px;color:var(--text3);padding:8px 0;">Sin tasks.</div>':
+      (proj.tasks||[]).map(t=>`
+        <div class="task-item">
+          <div class="task-check${t.done?" done":""}" onclick="toggleTask(${id},${t.id})">${t.done?"✓":""}</div>
+          <div class="task-text${t.done?" done":""}">${t.text}</div>
+        </div>`).join("")}
+      <button class="add-btn-ghost" style="width:100%;margin-top:8px;padding:9px;" onclick="openModal('task',${id})">+ Nueva Task</button>
+    </div>`;
+  } else if(tab==="notes"){
+    html+=`<div style="padding:4px 0;">${(proj.notes||[]).length===0?'<div style="font-size:12px;color:var(--text3);padding:8px 0;">Sin notas.</div>':
+      (proj.notes||[]).map(n=>`
+        <div class="note-blob">
+          <div class="note-blob-text">${n.text}</div>
+          <div class="note-blob-date">${n.date}</div>
+        </div>`).join("")}
+      <button class="add-btn-ghost" style="width:100%;margin-top:8px;padding:9px;" onclick="openModal('projNote',${id})">+ Nueva Nota</button>
+    </div>`;
+  }
+  html+="</div>";
+  det.innerHTML=html;
+}
+
+function toggleTask(projId,taskId){
+  const proj=DATA.projects.find(p=>p.id===projId);
+  if(!proj)return;
+  const task=proj.tasks.find(t=>t.id===taskId);
+  if(task)task.done=!task.done;
+  toggleProjDetail(projId,"tasks");
+}
+
+// ── EVENTS ──
+function renderEvents(){
+  const now=new Date();
+  const sorted=[...DATA.events].sort((a,b)=>new Date(a.start)-new Date(b.start));
+  document.getElementById("eventsList").innerHTML=sorted.map(e=>{
+    const d=new Date(e.start);
+    const diff=Math.ceil((d-now)/864e5);
+    const badge=diff<0?"eb-past":diff===0?"eb-today":"eb-up";
+    const badgeTxt=diff<0?"Pasado":diff===0?"Hoy":diff+"d";
+    return`<div class="event-card">
+      <div class="ev-top">
+        <div><div class="ev-title">${e.title}</div><div class="ev-type">${e.type}</div></div>
+        <div class="ev-badge ${badge}">${badgeTxt}</div>
+      </div>
+      <div class="ev-row"><span class="ev-ico">📍</span><span>${e.location}</span></div>
+      <div class="ev-row"><span class="ev-ico">🗓</span><span>${e.dates}</span></div>
+      ${e.notes?`<div class="ev-row"><span class="ev-ico">📋</span><span>${e.notes}</span></div>`:""}
+      ${diff>=0&&e.weather?`<div class="weather-box">
+        <div class="wb-ico">${e.weather.icon}</div>
+        <div><div class="wb-temp">${e.weather.temp}</div><div class="wb-desc">${e.weather.desc}</div></div>
+        <div class="wb-lbl">Pronóstico</div>
+      </div>`:""}
+    </div>`;
+  }).join("");
+}
+
+// ── NEWS ──
+function switchIntel(tab){
+  document.getElementById("itNews").classList.toggle("on",tab==="news");
+  document.getElementById("itComp").classList.toggle("on",tab==="comp");
+  document.getElementById("newsList").style.display=tab==="news"?"block":"none";
+  document.getElementById("compList").style.display=tab==="comp"?"block":"none";
+}
+
+function renderNews(){
+  document.getElementById("newsList").innerHTML=DATA.news.map(n=>`
+    <div class="news-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div class="news-src">${n.src}</div>
+        <a href="${n.url}" target="_blank" rel="noopener" style="background:var(--navy);color:var(--gold);font-size:9px;font-weight:700;padding:4px 10px;border-radius:7px;text-decoration:none;letter-spacing:0.06em;font-family:Syne,sans-serif;flex-shrink:0;">Leer →</a>
+      </div>
+      <div class="news-title">${n.title}</div>
+      <div class="news-sum">${n.sum}</div>
+      <div class="news-tags">${n.tags.map(t=>`<span class="news-tag">${t}</span>`).join("")}</div>
+      <div class="news-date">${n.date}</div>
+    </div>`).join("");
+}
+
+function renderCompetitors(){
+  document.getElementById("compList").innerHTML=DATA.competitors.map(c=>`
+    <div class="comp-card">
+      <div class="comp-name">${c.name}</div>
+      <div class="comp-text">${c.update}</div>
+      <div class="comp-date">${c.date}</div>
+    </div>`).join("");
+}
+
+// ── NOTES ──
+function renderNotes(){
+  const el=document.getElementById("notesList");
+  el.innerHTML=DATA.notes.length===0?'<div style="font-size:12px;color:var(--text3);padding:16px;text-align:center;">Sin notas. Presiona + Nueva para agregar.</div>':
+    DATA.notes.map(n=>`
+      <div class="note-card">
+        <div class="note-text">${n.text}</div>
+        <div class="note-meta"><span class="note-area-tag">${n.area}</span><span class="note-date">${n.date}</span></div>
+      </div>`).join("");
+}
+
+// ── NAVIGATION ──
+function nav(id){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+  document.getElementById("p-"+id).classList.add("on");
+  document.querySelectorAll(".bn").forEach(b=>b.classList.remove("on"));
+  const btn=document.getElementById("bn-"+id);
+  if(btn)btn.classList.add("on");
+  document.getElementById("appScroll").scrollTo(0,0);
+}
+
+// ── MODALS ──
+function openModal(type,extra){
+  curModal={type,extra};
+  const titles={meeting:"Agregar Meeting",project:"Nuevo Proyecto",event:"Nuevo Viaje/Evento",note:"Nueva Nota",task:"Nueva Task",projNote:"Nota del Proyecto",projUpdate:"Actualizar Proyecto"};
+  document.getElementById("modalTitle").textContent=titles[type]||"Agregar";
+  let b="";
+  if(type==="meeting"){
+    b=`<div class="flbl">Título</div><input class="fin" id="f1" placeholder="ej. Call con cliente">
+    <div class="flbl">Hora</div><input class="fin" id="f2" type="time" value="09:00">
+    <div class="flbl">Fecha</div><input class="fin" id="f3" type="date" value="${new Date().toISOString().split("T")[0]}">
+    <div class="flbl">Área</div><select class="fsel" id="f4">${AREAS.map(a=>`<option>${a}</option>`).join("")}</select>`;
+  } else if(type==="project"){
+    b=`<div class="flbl">Nombre</div><input class="fin" id="f1" placeholder="ej. Expansión POP Monterrey">
+    <div class="flbl">Área</div><select class="fsel" id="f2">${AREAS.map(a=>`<option>${a}</option>`).join("")}</select>
+    <div class="flbl">Descripción</div><textarea class="fta" id="f3" placeholder="Contexto y próximo paso..."></textarea>
+    <div class="flbl">Status</div><select class="fsel" id="f4"><option value="green">En Track ✅</option><option value="yellow">Atención ⚠️</option><option value="red">Crítico 🔴</option></select>
+    <div class="flbl">Avance (%)</div><input class="fin" id="f5" type="number" min="0" max="100" value="0">`;
+  } else if(type==="event"){
+    b=`<div class="flbl">Nombre del Evento</div><input class="fin" id="f1" placeholder="ej. LATAM Connect 2027">
+    <div class="flbl">Ubicación</div><input class="fin" id="f2" placeholder="ej. Bogotá, Colombia">
+    <div class="flbl">Fecha de inicio</div><input class="fin" id="f3" type="date">
+    <div class="flbl">Fechas (texto)</div><input class="fin" id="f4" placeholder="ej. Nov 5-7, 2027">
+    <div class="flbl">Tipo</div><select class="fsel" id="f5"><option>Industria</option><option>Música</option><option>Inversión</option><option>Personal</option><option>Viaje</option></select>
+    <div class="flbl">Notas</div><textarea class="fta" id="f6" placeholder="Agenda, objetivos, contactos..."></textarea>`;
+  } else if(type==="note"){
+    b=`<div class="flbl">Nota</div><textarea class="fta" id="f1" style="min-height:110px;" placeholder="Escribe tu idea..."></textarea>
+    <div class="flbl">Área</div><select class="fsel" id="f2">${AREAS.map(a=>`<option>${a}</option>`).join("")}</select>`;
+  } else if(type==="task"){
+    b=`<div class="flbl">Task</div><input class="fin" id="f1" placeholder="ej. Revisar propuesta comercial">`;
+  } else if(type==="projNote"){
+    b=`<div class="flbl">Nota</div><textarea class="fta" id="f1" style="min-height:110px;" placeholder="Escribe tu nota sobre este proyecto..."></textarea>`;
+  } else if(type==="projUpdate"){
+    const p=DATA.projects.find(x=>x.id===extra);
+    b=`<div class="flbl">Nuevo avance (%)</div><input class="fin" id="f1" type="number" min="0" max="100" value="${p?p.pct:0}">
+    <div class="flbl">Nuevo status</div><select class="fsel" id="f2"><option value="green"${p&&p.status==="green"?" selected":""}>En Track ✅</option><option value="yellow"${p&&p.status==="yellow"?" selected":""}>Atención ⚠️</option><option value="red"${p&&p.status==="red"?" selected":""}>Crítico 🔴</option></select>
+    <div class="flbl">Nota de actualización</div><textarea class="fta" id="f3" placeholder="¿Qué cambió?"></textarea>`;
+  }
+  document.getElementById("modalBody").innerHTML=b;
+  document.getElementById("modalBg").classList.add("open");
+}
+
+function closeModal(){document.getElementById("modalBg").classList.remove("open");}
+
+function saveModal(){
+  const {type,extra}=curModal;
+  if(type==="meeting"){
+    const title=document.getElementById("f1").value.trim();
+    if(!title){notify("⚠️","Ingresa un título");return;}
+    const area=document.getElementById("f4").value;
+    DATA.meetings.push({id:Date.now(),time:document.getElementById("f2").value,title,tag:area,color:AREA_COLORS[area]||"#C9A84C",date:document.getElementById("f3").value});
+    renderMeetings();renderCalEvents(calSelDate);notify("✅","Meeting agregado");
+  } else if(type==="project"){
+    const title=document.getElementById("f1").value.trim();
+    if(!title){notify("⚠️","Ingresa un nombre");return;}
+    const area=document.getElementById("f2").value;
+    DATA.projects.push({id:Date.now(),area,name:title,note:document.getElementById("f3").value.trim(),status:document.getElementById("f4").value,pct:parseInt(document.getElementById("f5").value)||0,tasks:[],notes:[]});
+    curArea=area;renderAreaTabs();renderProjects();updateSemaphore();notify("✅","Proyecto agregado");
+  } else if(type==="event"){
+    const title=document.getElementById("f1").value.trim();
+    if(!title){notify("⚠️","Ingresa un nombre");return;}
+    const weathers=[{temp:"20°C",desc:"Variable",icon:"🌤"},{temp:"25°C",desc:"Soleado",icon:"☀️"},{temp:"18°C",desc:"Nublado",icon:"☁️"},{temp:"22°C",desc:"Parcialmente nublado",icon:"⛅"}];
+    DATA.events.push({id:Date.now(),title,location:document.getElementById("f2").value,start:document.getElementById("f3").value,dates:document.getElementById("f4").value||document.getElementById("f3").value,type:document.getElementById("f5").value,weather:weathers[Math.floor(Math.random()*4)],notes:document.getElementById("f6").value});
+    renderEvents();renderNextEvent();renderCal();notify("✅","Evento agregado · Clima incluido ☀️");
+  } else if(type==="note"){
+    const text=document.getElementById("f1").value.trim();
+    if(!text){notify("⚠️","Escribe tu nota");return;}
+    DATA.notes.unshift({id:Date.now(),text,area:document.getElementById("f2").value,date:new Date().toLocaleDateString("es-ES",{day:"numeric",month:"short"})});
+    renderNotes();notify("✅","Nota guardada");
+  } else if(type==="task"){
+    const text=document.getElementById("f1").value.trim();
+    if(!text){notify("⚠️","Ingresa la task");return;}
+    const p=DATA.projects.find(x=>x.id===extra);
+    if(p){p.tasks.push({id:Date.now(),text,done:false});toggleProjDetail(extra,"tasks");}
+    notify("✅","Task agregada");
+  } else if(type==="projNote"){
+    const text=document.getElementById("f1").value.trim();
+    if(!text){notify("⚠️","Escribe la nota");return;}
+    const p=DATA.projects.find(x=>x.id===extra);
+    if(p){p.notes.unshift({id:Date.now(),text,date:new Date().toLocaleDateString("es-ES",{day:"numeric",month:"short"})});toggleProjDetail(extra,"notes");}
+    notify("✅","Nota guardada");
+  } else if(type==="projUpdate"){
+    const p=DATA.projects.find(x=>x.id===extra);
+    if(p){
+      p.pct=parseInt(document.getElementById("f1").value)||p.pct;
+      p.status=document.getElementById("f2").value;
+      const note=document.getElementById("f3").value.trim();
+      if(note)p.notes.unshift({id:Date.now(),text:"Update: "+note,date:new Date().toLocaleDateString("es-ES",{day:"numeric",month:"short"})});
+      renderProjects();updateSemaphore();
+    }
+    notify("✅","Proyecto actualizado");
+  }
+  closeModal();
+}
+
+// ── NOTIFY ──
+function notify(ico,txt){
+  document.getElementById("nico").textContent=ico;
+  document.getElementById("ntxt").textContent=txt;
+  const el=document.getElementById("notif");
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),3000);
+}
+</script>
+</body>
+</html>
