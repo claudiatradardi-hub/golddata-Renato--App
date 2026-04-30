@@ -1,0 +1,10 @@
+{
+  "name": "Renato Tradardi · CEO Dashboard",
+  "short_name": "RT CEO",
+  "description": "Gold Data CEO Dashboard",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0B1623",
+  "theme_color": "#C9A84C",
+  "orientation": "portrait"
+}
